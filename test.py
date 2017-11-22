@@ -3,6 +3,8 @@
 import pygame
 
 pygame.init();
+pygame.mixer.music.load('music/background_music.mp3')
+pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((400, 300))
 pygame.display.set_caption('파이게임 테스트')
