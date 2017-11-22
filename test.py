@@ -13,6 +13,7 @@ color = None;
 x = 30
 y = 30
 
+clock = pygame.time.Clock()
 
 while not finish:
     for event in pygame.event.get():
@@ -36,3 +37,4 @@ while not finish:
 
     pygame.draw.rect(screen, color, pygame.Rect(x, y, 60, 60))
     pygame.display.flip()
+    clock.tick(60)
