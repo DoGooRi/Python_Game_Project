@@ -10,6 +10,9 @@ pygame.display.set_caption('파이게임 테스트')
 finish = False
 colorBlue = False;
 color = None;
+x = 30
+y = 30
+
 
 while not finish:
     for event in pygame.event.get():
@@ -24,5 +27,12 @@ while not finish:
     else:
         color = (255, 0, 0)
 
-    pygame.draw.rect(screen, color, pygame.Rect(0, 0, 60, 60))
+    pressed = pygame.key.get_pressed()
+    if pressed[pygame.K_UP] : y -= 3
+    if pressed[pygame.K_DOWN] : y += 3
+    if pressed[pygame.K_LEFT] : x -= 3
+    if pressed[pygame.K_RIGHT] : x += 3
+    screen.fill((0,0,0)) # 화면 지우기
+
+    pygame.draw.rect(screen, color, pygame.Rect(x, y, 60, 60))
     pygame.display.flip()
