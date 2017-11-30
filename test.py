@@ -27,6 +27,11 @@ background2 = background1.copy()
 background1_x = 0
 background2_x = background_width
 
+score = 0;
+
+font = pygame.font.SysFont('font/nanum.ttf', 32)
+
+
 
 def fillImg(img, x, y):
     screen.blit(img, (x, y))
@@ -65,7 +70,13 @@ while not finish:
         background2_x = background_width
 
     pygame.draw.rect(screen, color, pygame.Rect(x, y, 60, 60))
+
+    text = font.render(str(round(score)), True, (255, 255, 255));
+    screen.blit(text, (10, 10))
+    score += 0.3;
+
     pygame.display.flip()
     clock.tick(60)
+
 pygame.quit()
 quit()
