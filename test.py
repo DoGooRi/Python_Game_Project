@@ -12,6 +12,8 @@ pygame.display.set_caption('파이게임 테스트')
 finish = False
 colorBlue = False;
 color = None;
+
+# 캐릭터 기본 위치
 x = 30
 y = 30
 
@@ -44,10 +46,11 @@ while not finish:
         color = (255, 0, 0)
 
     pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP]: y -= 3
-    if pressed[pygame.K_DOWN]: y += 3
-    if pressed[pygame.K_LEFT]: x -= 3
-    if pressed[pygame.K_RIGHT]: x += 3
+    if pressed[pygame.K_UP]: y -= 0 if y == 0 else 5
+    if pressed[pygame.K_DOWN]: y += 0 if (y == 365 - 60) else 5
+    # if pressed[pygame.K_LEFT]: x -= 3
+    # if pressed[pygame.K_RIGHT]: x += 3
+
     screen.fill((0, 0, 0))  # 화면 지우기
     fillImg(background1, background1_x, 0)  # 배경 이미지 삽입
     fillImg(background2, background2_x, 0)  # 배경 이미지 복사본 삽입
