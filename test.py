@@ -6,7 +6,7 @@ pygame.init();
 pygame.mixer.music.load('music/background_music.mp3')
 pygame.mixer.music.play(-1)
 
-screen = pygame.display.set_mode((400, 300))
+screen = pygame.display.set_mode((650, 365))
 pygame.display.set_caption('파이게임 테스트')
 
 finish = False
@@ -17,10 +17,17 @@ y = 30
 
 clock = pygame.time.Clock()
 
-myImg = pygame.image.load('images/background.jpg')
+background_width = 650
 
-def myimg(x, y):
-    screen.blit(myImg, (x, y))
+background1 = pygame.image.load('images/background2.jpg').convert_alpha()
+background2 = background1.copy()
+
+background1_x = 0
+background2_x = background_width
+
+
+def fillImg(img, x, y):
+    screen.blit(img, (x, y))
 
 
 while not finish:
@@ -42,7 +49,18 @@ while not finish:
     if pressed[pygame.K_LEFT]: x -= 3
     if pressed[pygame.K_RIGHT]: x += 3
     screen.fill((0, 0, 0))  # 화면 지우기
-    myimg(0, 0) # 배경 이미지 삽입
+    fillImg(background1, background1_x, 0)  # 배경 이미지 삽입
+    fillImg(background2, background2_x, 0)  # 배경 이미지 복사본 삽입
+
+    background1_x -= 5
+    background2_x -= 5
+
+    if background1_x == -background_width:
+        background1_x = background_width
+
+    if background2_x == -background_width:
+        background2_x = background_width
+
     pygame.draw.rect(screen, color, pygame.Rect(x, y, 60, 60))
     pygame.display.flip()
     clock.tick(60)
