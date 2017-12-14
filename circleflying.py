@@ -44,7 +44,9 @@ def main():
 
     # 플레이어 스프라이트 선언
     player = PlayerSprite(player_img, screen_rect.center)
+    players = pygame.sprite.Group()
     all_sprites.add(player)
+    players.add(player)
 
     # 장애물 스프라이트 선언
     blocks = pygame.sprite.Group()
@@ -63,10 +65,10 @@ def main():
     # block_group = pygame.sprite.RenderPlain(*blocks)
 
     # 배경 설정
-    background1 = pygame.image.load('images/background2.jpg').convert_alpha()
+    background1 = pygame.image.load('images/background3.png').convert_alpha()
     background2 = background1.copy()
 
-    background_width = 650;
+    background_width = SCREEN_WIDTH;
     background1_x = 0
     background2_x = background_width;
 
@@ -77,6 +79,9 @@ def main():
                 pygame.quit()
                 sys.exit()
         # 키입력에 따라 방향 회전 속도를 설정
+
+
+
         if hasattr(event, 'key'):
             down = event.type == KEYDOWN
             if event.key == K_RIGHT:
@@ -87,10 +92,24 @@ def main():
                 #     player.user_speed = down * 5
                 # elif event.key == K_DOWN:
                 #     player.user_speed = down * -5
+        #     elif event.key == K_a:
+        #         # 플레이어 전진 속도
+        #         player.user_speed = down * 7
+        #
+        #
+        # if (event.type != KEYDOWN):
+        player.user_speed = 3
 
-        # 플레이어 전진 속도
-        player.user_speed = 4
+
+        # 스프라이트 업데이트
         all_sprites.update()
+
+        # 플레이어, 장애물 충돌 체크
+        # hits = pygame.sprite.spritecollide(player, blocks, False)
+        hits = pygame.sprite.groupcollide(players, blocks, True, False)
+        if hits:
+            print("충돌 됨")
+
 
         # 플레이어 충돌 체크 (범위 조정 0.85)
         # collisions = pygame.sprite.spritecollide(player, block_group, False, pygame.sprite.collide_rect_ratio(0.85))
@@ -160,9 +179,9 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.rect.center = self.user_position
 
     def destory(self):
-        self.kill()
-
-        # def explode(self):
+        #TODO : 플레이어 충돌 했을 경우 죽는 애니메이션 나오도록
+        #killed = KillAni(self.x, self.y)
+        return;
 
 
 # 장애물 클래스
@@ -208,7 +227,7 @@ class BlockSprite(pygame.sprite.Sprite):
             self.rect.y = random.randrange(SCREEN_HIGHT - self.rect.height)
 
             self.speedx = random.randrange(3, 8)
-            print(self.rect.right)
+            # print(self.rect.right)
 
 
 
