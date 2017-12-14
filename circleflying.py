@@ -16,6 +16,10 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT), DOUBLEBUF)
 clock = pygame.time.Clock()
 pygame.display.set_caption('Circle Flying (ver 0.1)')
 
+# 전역 변수
+HIGH_SCORE = 0
+SCORE = 0
+
 # 이미지 리소스 로딩
 player_img = []
 for i in range(10):
@@ -30,14 +34,24 @@ for i in range(5):
     block_img.append(img)
 
 collision_img = []
-for i in range(5):
+for i in range(6):
     filename = 'player_killed{}.png'.format(i + 1)
     img = pygame.image.load('images/player_killed/' + filename).convert_alpha()
     collision_img.append(img)
 
+main_menu = [pygame.image.load('images/START1.png').convert_alpha(),
+             pygame.image.load('images/START2.png').convert_alpha()]
+
+game_over_menu = [pygame.image.load('images/END1.png').convert_alpha(),
+                  pygame.image.load('images/END2.png').convert_alpha()]
+
+# 폰트 로딩
+font = pygame.font.Font('font/Minecraftia-Regular.ttf', 32)
 
 # 메인 함수
 def main():
+    global HIGH_SCORE, SCORE
+
     # 화면 rect
     screen_rect = screen.get_rect()
 
@@ -58,14 +72,39 @@ def main():
         blocks.add(b)
 
     # 배경 설정
-    background1 = pygame.image.load('images/background3.png').convert_alpha()
+    background1 = pygame.image.load('images/background/background.png').convert_alpha()
     background2 = background1.copy()
 
     background_width = SCREEN_WIDTH;
     background1_x = 0
     background2_x = background_width;
 
+    coll = False
+    gmae_start = True
+    game_over = False
+
     while True:
+        if (game_over):
+            showGameOverMenu()
+            game_over = False
+
+            #초기화
+            SCORE = 0
+            coll = False
+            # 스프라이트 전체 그룹
+            all_sprites = pygame.sprite.Group()
+            # 플레이어 스프라이트 선언
+            player = PlayerSprite(player_img, (20, SCREEN_HIGHT / 2))
+            players = pygame.sprite.Group()
+            all_sprites.add(player)
+            players.add(player)
+            # 장애물 스프라이트 선언 (8개)
+            blocks = pygame.sprite.Group()
+            for i in range(8):
+                b = BlockSprite()
+                all_sprites.add(b)
+                blocks.add(b)
+
         fps_tick = clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -93,8 +132,17 @@ def main():
         hits = pygame.sprite.groupcollide(players, blocks, True, False, pygame.sprite.collide_circle)
         for hit in hits:
             print("충돌 됨")
+            coll = True
             player_collision = CollisionAniSprite(hit.rect.center)
             all_sprites.add(player_collision)
+
+        if (coll):
+            if not (player_collision.alive()):
+                # 스프라이트 모두 삭제
+                all_sprites.empty()
+                players.empty()
+                blocks.empty()
+                game_over = True
 
         # 배경 무한 스크롤을 위해 배경 복제
         screen.fill((0, 0, 0))  # 화면 지우기
@@ -109,9 +157,57 @@ def main():
         if background2_x == -background_width:
             background2_x = background_width
 
+        # 점수 추가 및 점수 표시
+        if (player.alive()):
+            SCORE += 0.3
+        text = font.render(str(round(SCORE)), False, (255, 255, 255));
+        screen.blit(text, (10, 10))
+
         # 랜더링
         all_sprites.draw(screen)
-        # block_group.draw(screen)
+        pygame.display.flip()
+
+
+def showMainMenu():
+    return
+
+def showGameOverMenu():
+    global HIGH_SCORE, SCORE
+
+    if HIGH_SCORE < SCORE:
+        HIGH_SCORE = SCORE
+
+    last_update = pygame.time.get_ticks()
+    index = 0
+
+    fillImg(game_over_menu[0], 0, 0)  # 배경 이미지 삽입
+
+    waiting = True
+
+    while waiting:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if hasattr(event, 'key'):
+                down = event.type == KEYDOWN
+                if (down):
+                    waiting = False
+
+        now = pygame.time.get_ticks()
+        # screen.fill((0, 0, 0))  # 화면 지우기
+
+        if (now - last_update) > 500:
+            index = (index + 1) % 2
+            last_update = now
+            fillImg(game_over_menu[index], 0, 0)  # 배경 이미지 삽입
+
+        text = font.render(str(round(SCORE)), False, (255, 255, 255));
+        screen.blit(text, (530, 92))
+        text2 = font.render(str(round(HIGH_SCORE)), False, (255, 255, 255));
+        screen.blit(text2, (530, 152))
+
         pygame.display.flip()
 
 
@@ -147,7 +243,7 @@ class PlayerSprite(pygame.sprite.Sprite):
         if now - self.last_update > FPS * 2:
             self.last_update = now
             self.ani_index = (self.ani_index + 1) % 10
-            print(self.ani_index)
+            # print(self.ani_index)
             self.user_src_image = player_img[self.ani_index]
 
     def update(self):
@@ -235,9 +331,11 @@ class CollisionAniSprite(pygame.sprite.Sprite):
         now = pygame.time.get_ticks()
         if now - self.last_update > FPS * 2:
             self.last_update = now
-            if (self.ani_index != 4):
+            if (self.ani_index != len(collision_img) - 1):
                 self.ani_index += 1
-            print(self.ani_index)
+            else:
+                self.kill()
+            # print(self.ani_index)
             self.image = collision_img[self.ani_index]
 
     def update(self):
