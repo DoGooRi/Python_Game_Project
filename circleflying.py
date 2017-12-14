@@ -16,16 +16,16 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT), DOUBLEBUF)
 clock = pygame.time.Clock()
 pygame.display.set_caption('Circle Flying (ver 0.1)')
 
+# 이미지 리소스 로딩
 
-# 리소스 로딩
-explosion_anim = []
-for i in range(8):
-    filename = '{}.png'.format(i + 1)
-    # print(filename)
-    img = pygame.image.load('images/explosion/' + filename).convert_alpha()
-    explosion_anim.append(img)
 
-player_img = pygame.image.load('player_ship.png').convert();
+# player_img = pygame.image.load('images/player/test.png').convert_alpha()
+
+player_img = []
+for i in range(10):
+    filename = 'player{}.png'.format(i + 1)
+    img = pygame.image.load('images/player/' + filename).convert_alpha()
+    player_img.append(img)
 
 block_img = []
 for i in range(5):
@@ -33,8 +33,14 @@ for i in range(5):
     img = pygame.image.load('images/meteor/' + filename).convert_alpha()
     block_img.append(img)
 
-player_explode = False
+explosion_anim = []
+for i in range(8):
+    filename = '{}.png'.format(i + 1)
+    # print(filename)
+    img = pygame.image.load('images/explosion/' + filename).convert_alpha()
+    explosion_anim.append(img)
 
+player_explode = False
 
 
 # 메인 함수
@@ -49,12 +55,12 @@ def main():
     all_sprites = pygame.sprite.Group()
 
     # 플레이어 스프라이트 선언
-    player = PlayerSprite(player_img, screen_rect.center)
+    player = PlayerSprite(player_img, (20, SCREEN_HIGHT / 2))
     players = pygame.sprite.Group()
     all_sprites.add(player)
     players.add(player)
 
-    # 장애물 스프라이트 선언
+    # 장애물 스프라이트 선언 (8개)
     blocks = pygame.sprite.Group()
     for i in range(8):
         b = BlockSprite()
@@ -98,7 +104,7 @@ def main():
                 #     player.user_speed = down * 5
                 # elif event.key == K_DOWN:
                 #     player.user_speed = down * -5
-        #     elif event.key == K_a:
+        # elif event.key == K_a:
         #         # 플레이어 전진 속도
         #         player.user_speed = down * 7
         #
@@ -106,16 +112,14 @@ def main():
         # if (event.type != KEYDOWN):
         player.user_speed = 3
 
-
         # 스프라이트 업데이트
         all_sprites.update()
 
         # 플레이어, 장애물 충돌 체크
         # hits = pygame.sprite.spritecollide(player, blocks, False)
-        hits = pygame.sprite.groupcollide(players, blocks, True, False)
+        hits = pygame.sprite.groupcollide(players, blocks, True, False, pygame.sprite.collide_circle)
         if hits:
             print("충돌 됨")
-
 
         # 플레이어 충돌 체크 (범위 조정 0.85)
         # collisions = pygame.sprite.spritecollide(player, block_group, False, pygame.sprite.collide_rect_ratio(0.85))
@@ -154,18 +158,43 @@ def main():
 class PlayerSprite(pygame.sprite.Sprite):
     def __init__(self, image, position):
         pygame.sprite.Sprite.__init__(self)
-        # self.user_src_image = pygame.transform.scale(pygame.image.load(image).convert_alpha(), (60, 19))
-        img = player_img;
-        img.set_colorkey((255,255,255))
-        self.user_src_image = pygame.transform.scale(img, (60, 19))
-        self.user_src_image = pygame.transform.rotate(self.user_src_image, 90)
+        # self.image = pygame.transform.scale(pygame.image.load(image).convert_alpha(), (60, 19))
+        # img = player_img[0];
+        # img.set_colorkey((255, 255, 255))
+
+        # self.user_src_image = pygame.transform.scale(img, (60, 19))
+        # self.user_src_image = pygame.transform.rotate(self.user_src_image, 90)
+
+        # self.user_src_image = pygame.transform.rotate(img, 90)
+        self.user_src_image = player_img[0];
+
+        # 충돌 collide_circle 체킹용 radius 변수
+        self.rect = self.user_src_image.get_rect()
+        self.radius = round(self.rect.width)
+        # 충돌 범위 조정 디버깅용
+        # pygame.draw.circle(self.user_src_image, (255, 0, 0), self.rect.center, self.radius)
 
         self.user_position = position
-        self.user_rotation = -90
+        self.user_rotation = 0
         self.user_speed = 0
         self.user_rotation_speed = 0
 
+        self.last_update = pygame.time.get_ticks()
+        self.ani_index = 0
+
+
+    def animation(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > FPS * 2:
+            self.last_update = now
+            self.ani_index = (self.ani_index + 1) % 10
+            print(self.ani_index)
+            self.user_src_image = player_img[self.ani_index]
+
+
+
     def update(self):
+        self.animation()
         # 속도, 회전 속도에 따라 위치 정보를 업데이트
         self.user_rotation += self.user_rotation_speed
         x, y = self.user_position
@@ -185,8 +214,8 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.rect.center = self.user_position
 
     def destory(self):
-        #TODO : 플레이어 충돌 했을 경우 죽는 애니메이션 나오도록
-        #killed = KillAni(self.x, self.y)
+        # TODO : 플레이어 충돌 했을 경우 죽는 애니메이션 나오도록
+        # killed = KillAni(self.x, self.y)
         return;
 
 
@@ -194,19 +223,40 @@ class PlayerSprite(pygame.sprite.Sprite):
 class BlockSprite(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image_normal = random.choice(block_img)
-        # self.image_hit = pygame.image.load("block_hit.png")
-        self.image = self.image_normal
+        self.image_orig = random.choice(block_img)
+        self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
+
+        # 충돌 collide_circle 체킹용 radius 변수
+        self.radius = round(self.rect.width / 2 * 0.85)
+        # 충돌 범위 조정 디버깅용
+        # pygame.draw.circle(self.image, (255, 0, 0), self.rect.center, self.radius)
+
         self.rect.x = random.randrange(SCREEN_WIDTH, SCREEN_WIDTH + 200)
         self.rect.y = random.randrange(SCREEN_HIGHT - self.rect.height)
-
         self.speedx = random.randrange(3, 8)
         self.speedy = random.randrange(-3, 3)
 
         # self.rect.center = self.user_position
 
+        self.last_update = pygame.time.get_ticks()
+        self.rot = 0
+        self.rot_speed = random.randrange(-12, 12)
+
+    def rotate(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > FPS:
+            # print('tick')
+            self.last_update = now
+            self.rot = (self.rot + self.rot_speed) % 360
+            new_image = pygame.transform.rotate(self.image_orig, self.rot)
+            old_center = self.rect.center
+            self.image = new_image
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
+
     def update(self):
+        self.rotate()
         # # 충돌 체크
         # global player_explode
         # if self in hit_list:
@@ -234,7 +284,6 @@ class BlockSprite(pygame.sprite.Sprite):
 
             self.speedx = random.randrange(3, 8)
             # print(self.rect.right)
-
 
 
 # 폭발 클래스
