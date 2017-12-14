@@ -25,7 +25,13 @@ for i in range(8):
     img = pygame.image.load('images/explosion/' + filename).convert_alpha()
     explosion_anim.append(img)
 
-player_img = 'player_ship.png'
+player_img = pygame.image.load('player_ship.png').convert();
+
+block_img = []
+for i in range(5):
+    filename = 'meteor{}.png'.format(i + 1)
+    img = pygame.image.load('images/meteor/' + filename).convert_alpha()
+    block_img.append(img)
 
 player_explode = False
 
@@ -149,7 +155,7 @@ class PlayerSprite(pygame.sprite.Sprite):
     def __init__(self, image, position):
         pygame.sprite.Sprite.__init__(self)
         # self.user_src_image = pygame.transform.scale(pygame.image.load(image).convert_alpha(), (60, 19))
-        img = pygame.image.load(player_img).convert()
+        img = player_img;
         img.set_colorkey((255,255,255))
         self.user_src_image = pygame.transform.scale(img, (60, 19))
         self.user_src_image = pygame.transform.rotate(self.user_src_image, 90)
@@ -188,7 +194,7 @@ class PlayerSprite(pygame.sprite.Sprite):
 class BlockSprite(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image_normal = pygame.image.load("block_normal.png")
+        self.image_normal = random.choice(block_img)
         # self.image_hit = pygame.image.load("block_hit.png")
         self.image = self.image_normal
         self.rect = self.image.get_rect()
