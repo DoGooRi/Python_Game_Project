@@ -33,14 +33,11 @@ for i in range(5):
     img = pygame.image.load('images/meteor/' + filename).convert_alpha()
     block_img.append(img)
 
-explosion_anim = []
-for i in range(8):
-    filename = '{}.png'.format(i + 1)
-    # print(filename)
-    img = pygame.image.load('images/explosion/' + filename).convert_alpha()
-    explosion_anim.append(img)
-
-player_explode = False
+collision_img = []
+for i in range(5):
+    filename = 'player_killed{}.png'.format(i + 1)
+    img = pygame.image.load('images/player_killed/' + filename).convert_alpha()
+    collision_img.append(img)
 
 
 # 메인 함수
@@ -66,6 +63,9 @@ def main():
         b = BlockSprite()
         all_sprites.add(b)
         blocks.add(b)
+
+    # 충돌 애니메이션 스프라이트 선언
+    player_collision = 0
 
     # # 장애물 객체 리스트 선언
     # blocks = [
@@ -118,8 +118,10 @@ def main():
         # 플레이어, 장애물 충돌 체크
         # hits = pygame.sprite.spritecollide(player, blocks, False)
         hits = pygame.sprite.groupcollide(players, blocks, True, False, pygame.sprite.collide_circle)
-        if hits:
+        for hit in hits:
             print("충돌 됨")
+            player_collision = CollisionAniSprite(hit.rect.center)
+            all_sprites.add(player_collision)
 
         # 플레이어 충돌 체크 (범위 조정 0.85)
         # collisions = pygame.sprite.spritecollide(player, block_group, False, pygame.sprite.collide_rect_ratio(0.85))
@@ -215,8 +217,12 @@ class PlayerSprite(pygame.sprite.Sprite):
 
     def destory(self):
         # TODO : 플레이어 충돌 했을 경우 죽는 애니메이션 나오도록
-        # killed = KillAni(self.x, self.y)
-        return;
+        # 충돌 애니메이션 스프라이트 선언
+        # player_collision = CollisionAniSprite((self.x, self.y))
+        return
+
+    def getPosition(self):
+        return (self.x, self.y)
 
 
 # 장애물 클래스
@@ -286,34 +292,44 @@ class BlockSprite(pygame.sprite.Sprite):
             # print(self.rect.right)
 
 
-# 폭발 클래스
-class ExplosionSprite(pygame.sprite.Sprite):
+# 충돌 애니메이션 클래스
+class CollisionAniSprite(pygame.sprite.Sprite):
     def __init__(self, center):
         pygame.sprite.Sprite.__init__(self)
-        self.image = explosion_anim[0]
+        self.image = collision_img[0]
         self.rect = self.image.get_rect()
         self.rect.center = center
-        self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 50
-        print(1)
+        self.ani_index = 0
+
+    def animation(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > FPS * 2:
+            self.last_update = now
+            if (self.ani_index != 4):
+                self.ani_index += 1
+            print(self.ani_index)
+            self.image = collision_img[self.ani_index]
 
     def update(self):
-        now = pygame.time.get_ticks()
-        print(now)
-        print(self.last_update)
-        if now - self.last_update > self.frame_rate:
-            self.last_update = now
-            self.frame_rate += 1
-            print(3)
-            if self.frame == len(explosion_anim):
-                self.kill()
-            else:
-                center = self.rect.center
-                self.image = explosion_anim[self.frame_rate]
-                self.rect = self.image.get_rect()
-                self.rect.center = center
-            print(4)
+        self.animation()
+
+    # def update(self):
+    #     now = pygame.time.get_ticks()
+    #     print(now)
+    #     print(self.last_update)
+    #     if now - self.last_update > self.frame_rate:
+    #         self.last_update = now
+    #         self.frame_rate += 1
+    #         print(3)
+    #         if self.frame == len(explosion_anim):
+    #             self.kill()
+    #         else:
+    #             center = self.rect.center
+    #             self.image = explosion_anim[self.frame_rate]
+    #             self.rect = self.image.get_rect()
+    #             self.rect.center = center
+    #         print(4)
 
 
 # 이미지 채우는 함수
