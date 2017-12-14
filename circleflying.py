@@ -17,10 +17,6 @@ clock = pygame.time.Clock()
 pygame.display.set_caption('Circle Flying (ver 0.1)')
 
 # 이미지 리소스 로딩
-
-
-# player_img = pygame.image.load('images/player/test.png').convert_alpha()
-
 player_img = []
 for i in range(10):
     filename = 'player{}.png'.format(i + 1)
@@ -45,9 +41,6 @@ def main():
     # 화면 rect
     screen_rect = screen.get_rect()
 
-    # player = PlayerSprite(player_img, screen_rect.center)
-    # player_group = pygame.sprite.RenderPlain(player)
-
     # 스프라이트 전체 그룹
     all_sprites = pygame.sprite.Group()
 
@@ -64,18 +57,6 @@ def main():
         all_sprites.add(b)
         blocks.add(b)
 
-    # 충돌 애니메이션 스프라이트 선언
-    player_collision = 0
-
-    # # 장애물 객체 리스트 선언
-    # blocks = [
-    #     BlockSprite((200, 200)),
-    #     BlockSprite((800, 200)),
-    #     BlockSprite((200, 400)),
-    #     BlockSprite((800, 400))
-    # ]
-    # block_group = pygame.sprite.RenderPlain(*blocks)
-
     # 배경 설정
     background1 = pygame.image.load('images/background3.png').convert_alpha()
     background2 = background1.copy()
@@ -90,9 +71,6 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-        # 키입력에 따라 방향 회전 속도를 설정
-
-
 
         if hasattr(event, 'key'):
             down = event.type == KEYDOWN
@@ -100,16 +78,11 @@ def main():
                 player.user_rotation_speed = down * -5  # 시계 방향
             elif event.key == K_LEFT:
                 player.user_rotation_speed = down * 5
-                # elif event.key == K_UP:
-                #     player.user_speed = down * 5
-                # elif event.key == K_DOWN:
-                #     player.user_speed = down * -5
-        # elif event.key == K_a:
-        #         # 플레이어 전진 속도
-        #         player.user_speed = down * 7
-        #
-        #
-        # if (event.type != KEYDOWN):
+            # elif event.key == K_UP:
+            #     player.user_speed = down * 5
+            # elif event.key == K_DOWN:
+            #     player.user_speed = down * -5
+
         player.user_speed = 3
 
         # 스프라이트 업데이트
@@ -122,20 +95,6 @@ def main():
             print("충돌 됨")
             player_collision = CollisionAniSprite(hit.rect.center)
             all_sprites.add(player_collision)
-
-        # 플레이어 충돌 체크 (범위 조정 0.85)
-        # collisions = pygame.sprite.spritecollide(player, block_group, False, pygame.sprite.collide_rect_ratio(0.85))
-        # for hit in collisions:
-        #     # player.destory()
-        #     expl = ExplosionSprite(hit.rect.center)
-        #     expl_group = pygame.sprite.RenderPlain(expl)
-        #     expl_group.update()
-        #     # ExplosionSprite.update()
-        #     # print(hit.rect.center)
-        #     # all_sprites.add(expl)
-
-        # collisions = pygame.sprite.spritecollide(player, block_group, False)
-        # block_group.update(collisions)
 
         # 배경 무한 스크롤을 위해 배경 복제
         screen.fill((0, 0, 0))  # 화면 지우기
@@ -163,10 +122,8 @@ class PlayerSprite(pygame.sprite.Sprite):
         # self.image = pygame.transform.scale(pygame.image.load(image).convert_alpha(), (60, 19))
         # img = player_img[0];
         # img.set_colorkey((255, 255, 255))
-
         # self.user_src_image = pygame.transform.scale(img, (60, 19))
         # self.user_src_image = pygame.transform.rotate(self.user_src_image, 90)
-
         # self.user_src_image = pygame.transform.rotate(img, 90)
         self.user_src_image = player_img[0];
 
@@ -193,9 +150,8 @@ class PlayerSprite(pygame.sprite.Sprite):
             print(self.ani_index)
             self.user_src_image = player_img[self.ani_index]
 
-
-
     def update(self):
+        # 애니메이션 트리거
         self.animation()
         # 속도, 회전 속도에 따라 위치 정보를 업데이트
         self.user_rotation += self.user_rotation_speed
@@ -214,15 +170,6 @@ class PlayerSprite(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.user_src_image, self.user_rotation)
         self.rect = self.image.get_rect()
         self.rect.center = self.user_position
-
-    def destory(self):
-        # TODO : 플레이어 충돌 했을 경우 죽는 애니메이션 나오도록
-        # 충돌 애니메이션 스프라이트 선언
-        # player_collision = CollisionAniSprite((self.x, self.y))
-        return
-
-    def getPosition(self):
-        return (self.x, self.y)
 
 
 # 장애물 클래스
@@ -262,26 +209,8 @@ class BlockSprite(pygame.sprite.Sprite):
             self.rect.center = old_center
 
     def update(self):
+        # 회전 트리거
         self.rotate()
-        # # 충돌 체크
-        # global player_explode
-        # if self in hit_list:
-        #     player_explode = True
-        #     self.image = self.user_image_hit
-        # else:
-        #     self.image = self.user_image_normal
-        #
-        # x, y = self.user_position
-        # # x -= 2
-        #
-        # self.user_position = (x, y)
-        # # rad = self.user_rotation * math.pi / 180
-        # # x += -self.user_speed * math.sin(rad)
-        # # y += -self.user_speed * math.cos(rad)
-        #
-        # self.rect = self.image.get_rect()
-        # self.rect.center = self.user_position
-
         self.rect.x -= self.speedx
         self.rect.y += self.speedy
         if (self.rect.right < -10) or (self.rect.bottom < -10) or (self.rect.top > SCREEN_HIGHT + 10):
@@ -314,46 +243,10 @@ class CollisionAniSprite(pygame.sprite.Sprite):
     def update(self):
         self.animation()
 
-    # def update(self):
-    #     now = pygame.time.get_ticks()
-    #     print(now)
-    #     print(self.last_update)
-    #     if now - self.last_update > self.frame_rate:
-    #         self.last_update = now
-    #         self.frame_rate += 1
-    #         print(3)
-    #         if self.frame == len(explosion_anim):
-    #             self.kill()
-    #         else:
-    #             center = self.rect.center
-    #             self.image = explosion_anim[self.frame_rate]
-    #             self.rect = self.image.get_rect()
-    #             self.rect.center = center
-    #         print(4)
-
 
 # 이미지 채우는 함수
 def fillImg(img, x, y):
     screen.blit(img, (x, y))
-
-
-# # 플레이어 폭발 애니메이션
-# def explode_animation(x, y):
-#     loopIter = 0;
-#     index = 1
-#
-#     while True:
-#         if (loopIter + 1) % 25 == 0:
-#             index += 1
-#         loopIter = (loopIter + 1) % 100
-#
-#         screen.fill((0, 0, 0))
-#         fillImg(pygame.image.load('images/explode/' + str(index) + '.png').convert_alpha(), x, y)
-#         # print(str(index))
-#         pygame.display.flip()
-#
-#         if (index == 8):
-#             return
 
 
 if __name__ == '__main__':
