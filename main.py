@@ -12,6 +12,7 @@ SCREEN_HIGHT = 600
 
 # 파이게임 초기화
 pygame.init()
+pygame.mixer.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT), DOUBLEBUF)
 clock = pygame.time.Clock()
 pygame.display.set_caption('JHONBER (ver 1.0)')
@@ -48,10 +49,17 @@ game_over_menu = [pygame.image.load('images/END1.png').convert_alpha(),
 # 폰트 로딩
 font = pygame.font.Font('font/Minecraftia-Regular.ttf', 32)
 
+# 사운드 로딩
+death_sound = pygame.mixer.Sound('sound/death.ogg')
+
+
+
+# game_over_sound =
+# main_menu_sound =
+# playing_sound =
+
 # 메인 함수
 def main():
-
-
     global HIGH_SCORE, SCORE
 
     # 화면 rect
@@ -137,6 +145,7 @@ def main():
         hits = pygame.sprite.groupcollide(players, blocks, True, False, pygame.sprite.collide_circle)
         for hit in hits:
             print("충돌 됨")
+            death_sound.play()
             coll = True
             player_collision = CollisionAniSprite(hit.rect.center)
             all_sprites.add(player_collision)
@@ -174,6 +183,9 @@ def main():
 
 
 def showMainMenu():
+    pygame.mixer.music.load('sound/main_menu.mp3')
+    pygame.mixer.music.play(-1)
+
     last_update = pygame.time.get_ticks()
     index = 0
 
@@ -199,7 +211,13 @@ def showMainMenu():
 
         pygame.display.flip()
 
+    pygame.mixer.music.load('sound/playing.mp3')
+    pygame.mixer.music.play(-1)
+
 def showGameOverMenu():
+    pygame.mixer.music.load('sound/game_over.mp3')
+    pygame.mixer.music.play(-1)
+
     global HIGH_SCORE, SCORE
 
     if HIGH_SCORE < SCORE:
@@ -237,6 +255,9 @@ def showGameOverMenu():
         screen.blit(text2, (530, 152))
 
         pygame.display.flip()
+
+    pygame.mixer.music.load('sound/playing.mp3')
+    pygame.mixer.music.play(-1)
 
 
 # 플레이어 클래스
