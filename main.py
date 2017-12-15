@@ -20,6 +20,7 @@ pygame.display.set_caption('JHONBER (ver 1.0)')
 # 전역 변수
 HIGH_SCORE = 0
 SCORE = 0
+BLOCKSIZE = 8
 
 # 이미지 리소스 로딩
 player_img = []
@@ -74,9 +75,9 @@ def main():
     all_sprites.add(player)
     players.add(player)
 
-    # 장애물 스프라이트 선언 (8개)
+    # 장애물 스프라이트 선언 (BLOCKSIZE 개)
     blocks = pygame.sprite.Group()
-    for i in range(8):
+    for i in range(BLOCKSIZE):
         b = BlockSprite()
         all_sprites.add(b)
         blocks.add(b)
@@ -112,9 +113,9 @@ def main():
             players = pygame.sprite.Group()
             all_sprites.add(player)
             players.add(player)
-            # 장애물 스프라이트 선언 (8개)
+            # 장애물 스프라이트 선언 (BLOCKSIZE 개)
             blocks = pygame.sprite.Group()
-            for i in range(8):
+            for i in range(BLOCKSIZE):
                 b = BlockSprite()
                 all_sprites.add(b)
                 blocks.add(b)
@@ -274,7 +275,7 @@ class PlayerSprite(pygame.sprite.Sprite):
 
         # 충돌 collide_circle 체킹용 radius 변수
         self.rect = self.user_src_image.get_rect()
-        self.radius = round(self.rect.width)
+        self.radius = round(self.rect.width / 2 * 0.75)
         # 충돌 범위 조정 디버깅용
         # pygame.draw.circle(self.user_src_image, (255, 0, 0), self.rect.center, self.radius)
 
