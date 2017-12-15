@@ -14,7 +14,7 @@ SCREEN_HIGHT = 600
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT), DOUBLEBUF)
 clock = pygame.time.Clock()
-pygame.display.set_caption('Circle Flying (ver 0.1)')
+pygame.display.set_caption('Circle Flying (ver 1.0)')
 
 # 전역 변수
 HIGH_SCORE = 0
@@ -50,6 +50,8 @@ font = pygame.font.Font('font/Minecraftia-Regular.ttf', 32)
 
 # 메인 함수
 def main():
+
+
     global HIGH_SCORE, SCORE
 
     # 화면 rect
@@ -84,6 +86,10 @@ def main():
     game_over = False
 
     while True:
+        if (gmae_start):
+            showMainMenu()
+            gmae_start = False
+
         if (game_over):
             showGameOverMenu()
             game_over = False
@@ -110,17 +116,16 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-        if hasattr(event, 'key'):
-            down = event.type == KEYDOWN
-            if event.key == K_RIGHT:
-                player.user_rotation_speed = down * -5  # 시계 방향
-            elif event.key == K_LEFT:
-                player.user_rotation_speed = down * 5
-            # elif event.key == K_UP:
-            #     player.user_speed = down * 5
-            # elif event.key == K_DOWN:
-            #     player.user_speed = down * -5
+            if hasattr(event, 'key'):
+                down = event.type == KEYDOWN
+                if event.key == K_RIGHT:
+                    player.user_rotation_speed = down * -5  # 시계 방향
+                elif event.key == K_LEFT:
+                    player.user_rotation_speed = down * 5
+                # elif event.key == K_UP:
+                #     player.user_speed = down * 5
+                # elif event.key == K_DOWN:
+                #     player.user_speed = down * -5
 
         player.user_speed = 3
 
@@ -169,7 +174,30 @@ def main():
 
 
 def showMainMenu():
-    return
+    last_update = pygame.time.get_ticks()
+    index = 0
+
+    fillImg(main_menu[0], 0, 0)  # 배경 이미지 삽입
+
+    waiting = True
+
+    while waiting:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                waiting = False
+
+        now = pygame.time.get_ticks()
+
+        if (now - last_update) > 500:
+            index = (index + 1) % 2
+            last_update = now
+            fillImg(main_menu[index], 0, 0)  # 배경 이미지 삽입
+
+        pygame.display.flip()
 
 def showGameOverMenu():
     global HIGH_SCORE, SCORE
