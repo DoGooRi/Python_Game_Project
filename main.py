@@ -14,7 +14,7 @@ SCREEN_HIGHT = 600
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT), DOUBLEBUF)
 clock = pygame.time.Clock()
-pygame.display.set_caption('Circle Flying (ver 1.0)')
+pygame.display.set_caption('JHONBER (ver 1.0)')
 
 # 전역 변수
 HIGH_SCORE = 0
